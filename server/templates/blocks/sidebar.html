@@ -1,0 +1,128 @@
+<head>
+    <title>Java Maze</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
+    <link rel="icon" href="/img/maze.jpg">
+    <script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@stomp/stompjs@7.0.0/bundles/stomp.umd.min.js"></script>
+<!--    <script th:src="@{/js/mapscript.js}"></script>-->
+    <script>
+        sizeMap = "[[${sizeMap}]]";
+    </script>
+</head>
+
+<div class="d-flex flex-column flex-shrink-0 p-3 text-bg-dark" style="width: 280px; height: 90vh">
+    <a class="d-flex align-items-center mb-3 mb-md-0 me-md-auto text-white text-decoration-none">
+        <svg padding="5px" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-menu-button-wide-fill" viewBox="0 0 16 16">
+            <path d="M1.5 0A1.5 1.5 0 0 0 0 1.5v2A1.5 1.5 0 0 0 1.5 5h13A1.5 1.5 0 0 0 16 3.5v-2A1.5 1.5 0 0 0 14.5 0zm1 2h3a.5.5 0 0 1 0 1h-3a.5.5 0 0 1 0-1m9.927.427A.25.25 0 0 1 12.604 2h.792a.25.25 0 0 1 .177.427l-.396.396a.25.25 0 0 1-.354 0zM0 8a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2zm1 3v2a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2zm14-1V8a1 1 0 0 0-1-1H2a1 1 0 0 0-1 1v2zM2 8.5a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 0 1h-9a.5.5 0 0 1-.5-.5m0 4a.5.5 0 0 1 .5-.5h6a.5.5 0 0 1 0 1h-6a.5.5 0 0 1-.5-.5"/>
+        </svg>
+        <span class="fs-4" style="padding-left: 10px">Menu</span>
+    </a>
+    <hr>
+    <ul class="nav nav-pills flex-column mb-auto">
+        <li>
+            <a href="" onclick="Reboot()" class="nav-link text-white">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-repeat" viewBox="0 0 16 16">
+                    <path d="M11.534 7h3.932a.25.25 0 0 1 .192.41l-1.966 2.36a.25.25 0 0 1-.384 0l-1.966-2.36a.25.25 0 0 1 .192-.41m-11 2h3.932a.25.25 0 0 0 .192-.41L2.692 6.23a.25.25 0 0 0-.384 0L.342 8.59A.25.25 0 0 0 .534 9"/>
+                    <path fill-rule="evenodd" d="M8 3c-1.552 0-2.94.707-3.857 1.818a.5.5 0 1 1-.771-.636A6.002 6.002 0 0 1 13.917 7H12.9A5 5 0 0 0 8 3M3.1 9a5.002 5.002 0 0 0 8.757 2.182.5.5 0 1 1 .771.636A6.002 6.002 0 0 1 2.083 9z"/>
+                </svg>
+                Reboot
+            </a>
+        </li>
+        <li>
+            <a href="/upload" class="nav-link text-white">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-cloud-arrow-up-fill" viewBox="0 0 16 16">
+                    <path d="M8 2a5.53 5.53 0 0 0-3.594 1.342c-.766.66-1.321 1.52-1.464 2.383C1.266 6.095 0 7.555 0 9.318 0 11.366 1.708 13 3.781 13h8.906C14.502 13 16 11.57 16 9.773c0-1.636-1.242-2.969-2.834-3.194C12.923 3.999 10.69 2 8 2m2.354 5.146a.5.5 0 0 1-.708.708L8.5 6.707V10.5a.5.5 0 0 1-1 0V6.707L6.354 7.854a.5.5 0 1 1-.708-.708l2-2a.5.5 0 0 1 .708 0z"/>
+                </svg>
+                Upload
+            </a>
+        </li>
+        <li>
+            <a style="cursor: pointer;" onclick="Download()" class="nav-link text-white">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-cloud-arrow-down-fill" viewBox="0 0 16 16">
+                    <path d="M8 2a5.53 5.53 0 0 0-3.594 1.342c-.766.66-1.321 1.52-1.464 2.383C1.266 6.095 0 7.555 0 9.318 0 11.366 1.708 13 3.781 13h8.906C14.502 13 16 11.57 16 9.773c0-1.636-1.242-2.969-2.834-3.194C12.923 3.999 10.69 2 8 2m2.354 6.854-2 2a.5.5 0 0 1-.708 0l-2-2a.5.5 0 1 1 .708-.708L7.5 9.293V5.5a.5.5 0 0 1 1 0v3.793l1.146-1.147a.5.5 0 0 1 .708.708"/>
+                </svg>
+                Download
+            </a>
+        </li>
+        <li>
+            <a style="cursor: pointer;" onclick="Help()" class="nav-link text-white">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-question-square-fill" viewBox="0 0 16 16">
+                    <path d="M2 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2zm3.496 6.033a.237.237 0 0 1-.24-.247C5.35 4.091 6.737 3.5 8.005 3.5c1.396 0 2.672.73 2.672 2.24 0 1.08-.635 1.594-1.244 2.057-.737.559-1.01.768-1.01 1.486v.105a.25.25 0 0 1-.25.25h-.81a.25.25 0 0 1-.25-.246l-.004-.217c-.038-.927.495-1.498 1.168-1.987.59-.444.965-.736.965-1.371 0-.825-.628-1.168-1.314-1.168-.803 0-1.253.478-1.342 1.134-.018.137-.128.25-.266.25h-.825zm2.325 6.443c-.584 0-1.009-.394-1.009-.927 0-.552.425-.94 1.01-.94.609 0 1.028.388 1.028.94 0 .533-.42.927-1.029.927"/>
+                </svg>
+                Help
+            </a>
+        </li>
+    </ul>
+
+    <div>
+        <input id="pi_input" type="range" min="2" max="50" step="1"/>
+        <p>Size: <output id="value"></output></p>
+    </div>
+
+    <script>
+        const value = document.querySelector("#value");
+        const input = document.querySelector("#pi_input");
+        input.value = sizeMap;
+        value.textContent = input.value;
+        input.addEventListener("change", (event) => {
+            value.textContent = Math.round(event.target.value);
+            SetSize(value.textContent);
+            location.reload();
+        });
+    </script>
+</div>
+
+
+<!--<div class="d-flex flex-column flex-shrink-0 p-3 text-bg-dark" style="width: 280px;">-->
+<!--    <a href="/" class="d-flex align-items-center mb-3 mb-md-0 me-md-auto text-white text-decoration-none">-->
+<!--        <svg class="bi pe-none me-2" width="40" height="32"><use xlink:href="#bootstrap"></use></svg>-->
+<!--        <span class="fs-4">Sidebar</span>-->
+<!--    </a>-->
+<!--    <hr>-->
+<!--    <ul class="nav nav-pills flex-column mb-auto">-->
+<!--        <li class="nav-item">-->
+<!--            <a href="#" class="nav-link active" aria-current="page">-->
+<!--                <svg class="bi pe-none me-2" width="16" height="16"><use xlink:href="#home"></use></svg>-->
+<!--                Home-->
+<!--            </a>-->
+<!--        </li>-->
+<!--        <li>-->
+<!--            <a href="#" class="nav-link text-white">-->
+<!--                <svg class="bi pe-none me-2" width="16" height="16"><use xlink:href="#speedometer2"></use></svg>-->
+<!--                Dashboard-->
+<!--            </a>-->
+<!--        </li>-->
+<!--        <li>-->
+<!--            <a href="#" class="nav-link text-white">-->
+<!--                <svg class="bi pe-none me-2" width="16" height="16"><use xlink:href="#table"></use></svg>-->
+<!--                Orders-->
+<!--            </a>-->
+<!--        </li>-->
+<!--        <li>-->
+<!--            <a href="#" class="nav-link text-white">-->
+<!--                <svg class="bi pe-none me-2" width="16" height="16"><use xlink:href="#grid"></use></svg>-->
+<!--                Products-->
+<!--            </a>-->
+<!--        </li>-->
+<!--        <li>-->
+<!--            <a href="#" class="nav-link text-white">-->
+<!--                <svg class="bi pe-none me-2" width="16" height="16"><use xlink:href="#people-circle"></use></svg>-->
+<!--                Customers-->
+<!--            </a>-->
+<!--        </li>-->
+<!--    </ul>-->
+<!--    <hr>-->
+<!--    <div class="dropdown">-->
+<!--        <a href="#" class="d-flex align-items-center text-white text-decoration-none dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">-->
+<!--            <img src="https://github.com/mdo.png" alt="" width="32" height="32" class="rounded-circle me-2">-->
+<!--            <strong>mdo</strong>-->
+<!--        </a>-->
+<!--        <ul class="dropdown-menu dropdown-menu-dark text-small shadow">-->
+<!--            <li><a class="dropdown-item" href="#">New project...</a></li>-->
+<!--            <li><a class="dropdown-item" href="#">Settings</a></li>-->
+<!--            <li><a class="dropdown-item" href="#">Profile</a></li>-->
+<!--            <li><hr class="dropdown-divider"></li>-->
+<!--            <li><a class="dropdown-item" href="#">Sign out</a></li>-->
+<!--        </ul>-->
+<!--    </div>-->
+<!--</div>-->

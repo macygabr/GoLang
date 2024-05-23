@@ -31,40 +31,33 @@ func Connect() {
 }
 
 func ReadFile() {
-	// Чтение содержимого JSON-файла
 	jsonData, err := ioutil.ReadFile("./download/test.json")
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	// Декодирование данных JSON в структуру или карту
 	var data []MyData
 	err = json.Unmarshal(jsonData, &data)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	// Вывод длины данных JSON
 	fmt.Println(len(jsonData))
 
-	// Вывод декодированных данных
 	fmt.Println(data)
 
-	// Установка соединения с базой данных PostgreSQL
 	db, err := sql.Open("postgres", "user=your_user password=your_password dbname=your_db sslmode=disable")
 	if err != nil {
 		log.Fatal(err)
 	}
 	defer db.Close()
 
-	// Подготовка SQL-запроса для вставки данных в таблицу
 	stmt, err := db.Prepare("INSERT INTO godb (id, name) VALUES ($1, $2)")
 	if err != nil {
 		log.Fatal(err)
 	}
 	defer stmt.Close()
 
-	// Выполнение SQL-запроса для каждого элемента данных
 	for _, item := range data {
 		_, err = stmt.Exec(item.ID, item.Name)
 		if err != nil {

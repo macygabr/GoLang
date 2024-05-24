@@ -32,7 +32,7 @@ func (v *DataBase) Connect() {
 }
 
 func (v *DataBase) ReadFile() {
-	jsonData, err := ioutil.ReadFile("server/download/test.json")
+	jsonData, err := ioutil.ReadFile("server/download/model.json")
 	if err != nil {
 		log.Fatal(err)
 	}

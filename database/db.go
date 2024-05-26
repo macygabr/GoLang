@@ -41,8 +41,8 @@ func (v *DataBase) Connect() stan.Subscription {
 	return sub
 }
 
-func (v *DataBase) ReadFile() {
-	jsonData, err := ioutil.ReadFile("server/download/model.json")
+func (v *DataBase) ReadFile(name string) {
+	jsonData, err := ioutil.ReadFile("server/download/" + name)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -129,7 +129,7 @@ func (v *DataBase) Listen() stan.Subscription {
 		}
 
 		if task.UpdateDB {
-			v.ReadFile()
+			v.ReadFile(task.NameFile)
 		}
 	})
 	return sub

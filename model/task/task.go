@@ -9,6 +9,7 @@ type Task struct {
 	Cash     bool
 	User     user.UserData
 	OrderID  string
+	NameFile string
 }
 
 func (t *Task) SetUpdateDB(status bool) {
@@ -25,4 +26,8 @@ func (t *Task) SetUserData(user user.UserData) {
 
 func (t *Task) SetOrderID(id string) {
 	t.OrderID = id
+}
+
+func (t *Task) SetNameFile(name string) {
+	t.NameFile = name
 }

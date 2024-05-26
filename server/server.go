@@ -62,7 +62,7 @@ func (s *Server) ListenUploadPage() {
 			}
 			tmpl, _ := template.ParseFiles("server/templates/pages/upload.html")
 			tmpl.Execute(w, nil)
-			Send()
+			Send(header.Filename)
 		} else {
 			tmpl, _ := template.ParseFiles("server/templates/pages/upload.html")
 			tmpl.Execute(w, nil)
@@ -96,12 +96,13 @@ func (s *Server) submitHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func Send() {
+func Send(name string) {
 	sc, _ := stan.Connect("test-cluster", "client_server_send", stan.NatsURL("nats://0.0.0.0:4222"))
 	defer sc.Close()
 
 	task := new(task.Task)
 	task.SetUpdateDB(true)
+	task.SetNameFile(name)
 
 	message, err := json.Marshal(task)
 	if err != nil {

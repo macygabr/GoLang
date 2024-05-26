@@ -139,10 +139,9 @@ func (v *DataBase) Listen() stan.Subscription {
 
 func (v *DataBase) Regenerate() {
 	// var data user.UserData
-	var sub, _ = v.db.Exec("SELECT * FROM delivery")
-	log.Print(sub)
 
-	// v.db.Exec("SELECT * FROM payment")
-	// v.db.Exec("SELECT * FROM items")
-	// v.db.Exec("SELECT * FROM orders")
+	// stmt, _ := v.db.Prepare("SELECT * FROM orders")
+
+	// log.Println(stmt)
+
 }

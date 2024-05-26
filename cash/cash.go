@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"golang/model/task"
 	"golang/model/user"
-	"io/ioutil"
 	"log"
 
 	"github.com/nats-io/stan.go"
@@ -19,22 +18,37 @@ func NewCash() *Cash {
 }
 
 func (c *Cash) Regenerate() stan.Subscription {
+	// var sub = c.Listen()
+	// jsonData, err := ioutil.ReadFile("server/download/model.json")
+	// if err != nil {
+	// 	log.Fatal(err)
+	// }
+
+	// if !json.Valid(jsonData) {
+	// 	return sub
+	// }
+
+	// err = json.Unmarshal(jsonData, &c.user)
+	// if err != nil {
+	// 	log.Fatal(err)
+	// }
+	// return sub
+	// //Перепиши на нормальное восстановление данных из бд!
+
 	var sub = c.Listen()
-	jsonData, err := ioutil.ReadFile("server/download/model.json")
+	sc, _ := stan.Connect("test-cluster", "client_cash_send", stan.NatsURL("nats://0.0.0.0:4222"))
+	defer sc.Close()
+
+	task := new(task.Task)
+	task.SetCash(true)
+
+	message, err := json.Marshal(task)
 	if err != nil {
 		log.Fatal(err)
 	}
+	sc.Publish("database", message)
 
-	if !json.Valid(jsonData) {
-		return sub
-	}
-
-	err = json.Unmarshal(jsonData, &c.user)
-	if err != nil {
-		log.Fatal(err)
-	}
 	return sub
-	//Перепиши на нормальное восстановление данных из бд!
 }
 
 func (c *Cash) Send(id string) {
@@ -43,7 +57,7 @@ func (c *Cash) Send(id string) {
 
 	task := new(task.Task)
 	task.SetCash(true)
-	if c.user.OrderUID == id {
+	if id != "" && c.user.OrderUID == id {
 		task.SetUserData(c.user)
 	}
 

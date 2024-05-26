@@ -2,26 +2,66 @@ package cash
 
 import (
 	"encoding/json"
-	"golang/model"
+	"golang/model/task"
+	"golang/model/user"
+	"io/ioutil"
+	"log"
 
 	"github.com/nats-io/stan.go"
 )
 
 type Cash struct {
-	user model.UserData
+	user user.UserData
 }
 
 func NewCash() *Cash {
 	return &Cash{}
 }
 
-func (c *Cash) Regenerate() {
-	//read and save user-data from database in cash
+func (c *Cash) Regenerate() stan.Subscription {
+	var sub = c.Listen()
+	jsonData, err := ioutil.ReadFile("server/download/model.json")
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	if !json.Valid(jsonData) {
+		return sub
+	}
+
+	err = json.Unmarshal(jsonData, &c.user)
+	if err != nil {
+		log.Fatal(err)
+	}
+	return sub
 }
 
 func (c *Cash) Send() {
-	sc, _ := stan.Connect("test-cluster", "client_cash", stan.NatsURL("nats://0.0.0.0:4222"))
+	sc, _ := stan.Connect("test-cluster", "client_cash_send", stan.NatsURL("nats://0.0.0.0:4222"))
 	defer sc.Close()
-	message, _ := json.Marshal(c.user)
-	sc.Publish("UserDataFromCash", message)
+
+	task := new(task.Task)
+	task.SetCash(true)
+	task.SetUserData(c.user)
+
+	message, err := json.Marshal(task)
+	if err != nil {
+		log.Fatal(err)
+	}
+	sc.Publish("server", message)
+}
+
+func (c *Cash) Listen() stan.Subscription {
+	sc, _ := stan.Connect("test-cluster", "client_cash_listen", stan.NatsURL("nats://0.0.0.0:4222"))
+	sub, _ := sc.Subscribe("cash", func(msg *stan.Msg) {
+		var task task.Task
+		err := json.Unmarshal(msg.Data, &task)
+		if err != nil {
+			log.Fatal(err)
+		}
+		if task.Cash {
+			c.Send()
+		}
+	})
+	return sub
 }

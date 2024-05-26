@@ -1,10 +1,12 @@
 package server
 
 import (
-	"fmt"
+	"encoding/json"
 	"golang/database"
+	"golang/model/task"
 	"html/template"
 	"io"
+	"log"
 	"net/http"
 	"os"
 
@@ -20,18 +22,14 @@ func NewServer(db *database.DataBase, arg stan.Conn) *Server {
 	return &Server{db, arg}
 }
 
-func Send() {
-	fmt.Println("Send")
-	sc, _ := stan.Connect("test-cluster", "client_server", stan.NatsURL("nats://0.0.0.0:4222"))
-	defer sc.Close()
-	message := []byte("Hello, NATS Streaming!!!")
-	sc.Publish("parseFile", message)
-}
-
-func (s *Server) Start() {
+func (s *Server) Start() stan.Subscription {
+	var sub = s.Listen()
 	s.ListenHomePage()
 	s.ListenUploadPage()
+	s.ListenOrderPage()
+
 	http.ListenAndServe(":8080", nil)
+	return sub
 }
 
 func (s *Server) ListenHomePage() {
@@ -72,4 +70,57 @@ func (s *Server) ListenUploadPage() {
 			tmpl.Execute(w, nil)
 		}
 	})
+}
+
+func (s *Server) ListenOrderPage() {
+	http.HandleFunc("/order", func(w http.ResponseWriter, r *http.Request) {
+		sc, _ := stan.Connect("test-cluster", "client_server_send", stan.NatsURL("nats://0.0.0.0:4222"))
+		defer sc.Close()
+
+		task := new(task.Task)
+		task.SetCash(true)
+
+		message, err := json.Marshal(task)
+		if err != nil {
+			log.Fatal(err)
+		}
+		sc.Publish("cash", message)
+
+		w.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(task)
+	})
+}
+
+func Send() {
+	sc, _ := stan.Connect("test-cluster", "client_server_send", stan.NatsURL("nats://0.0.0.0:4222"))
+	defer sc.Close()
+
+	task := new(task.Task)
+	task.SetUpdateDB(true)
+
+	message, err := json.Marshal(task)
+	if err != nil {
+		log.Fatal(err)
+	}
+	sc.Publish("Task", message)
+}
+
+func (s *Server) Listen() stan.Subscription {
+	sc, _ := stan.Connect("test-cluster", "client_server_listen", stan.NatsURL("nats://0.0.0.0:4222"))
+	sub, _ := sc.Subscribe("server", func(msg *stan.Msg) {
+		var task task.Task
+		err := json.Unmarshal(msg.Data, &task)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		if task.UpdateDB {
+			log.Println(task)
+		}
+
+		if task.Cash {
+			log.Println(task)
+		}
+	})
+	return sub
 }

@@ -3,7 +3,8 @@ package database
 import (
 	"database/sql"
 	"encoding/json"
-	"golang/model"
+	"golang/model/task"
+	"golang/model/user"
 	"io/ioutil"
 	"log"
 
@@ -20,8 +21,8 @@ func NewDataBase() *DataBase {
 	return &DataBase{nil, nil}
 }
 
-func (v *DataBase) Connect() {
-
+func (v *DataBase) Connect() stan.Subscription {
+	var sub = v.Listen()
 	conninfo := "user=postgres password=postgres host=127.0.0.1 sslmode=disable"
 	db, err := sql.Open("postgres", conninfo)
 
@@ -37,6 +38,7 @@ func (v *DataBase) Connect() {
 	db.Exec("SELECT")
 
 	v.db = db
+	return sub
 }
 
 func (v *DataBase) ReadFile() {
@@ -49,7 +51,7 @@ func (v *DataBase) ReadFile() {
 		return
 	}
 
-	var data model.UserData
+	var data user.UserData
 	err = json.Unmarshal(jsonData, &data)
 	if err != nil {
 		log.Fatal(err)
@@ -61,7 +63,7 @@ func (v *DataBase) ReadFile() {
 
 }
 
-func (v *DataBase) insertDelivery(data model.UserData) {
+func (v *DataBase) insertDelivery(data user.UserData) {
 	stmt, err := v.db.Prepare("INSERT INTO delivery (Name, Phone, Zip, City, Address, Region, Email) VALUES ($1, $2, $3, $4, $5, $6, $7)")
 	if err != nil {
 		log.Fatal(err)
@@ -74,7 +76,7 @@ func (v *DataBase) insertDelivery(data model.UserData) {
 	}
 }
 
-func (v *DataBase) insertPayment(data model.UserData) {
+func (v *DataBase) insertPayment(data user.UserData) {
 	stmt, err := v.db.Prepare("INSERT INTO payment (Transaction, RequestID, Currency, Provider, Amount, PaymentDt, Bank, DeliveryCost, GoodsTotal, CustomFee) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)")
 	if err != nil {
 		log.Fatal(err)
@@ -87,7 +89,7 @@ func (v *DataBase) insertPayment(data model.UserData) {
 	}
 }
 
-func (v *DataBase) insertItems(data model.UserData) {
+func (v *DataBase) insertItems(data user.UserData) {
 	stmt, err := v.db.Prepare("INSERT INTO items (ChrtID, TrackNumber, Price, Rid, Name, Sale, Size, TotalPrice, NmID, Brand, Status) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)")
 	if err != nil {
 		log.Fatal(err)
@@ -102,7 +104,7 @@ func (v *DataBase) insertItems(data model.UserData) {
 	}
 }
 
-func (v *DataBase) insertOrders(data model.UserData) {
+func (v *DataBase) insertOrders(data user.UserData) {
 	stmt, err := v.db.Prepare("INSERT INTO orders (OrderUID, TrackNumber, Entry, Locale, InternalSignature, CustomerID, DeliveryService, Shardkey, SmID, DateCreated, OofShard) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)")
 	if err != nil {
 		log.Fatal(err)
@@ -115,4 +117,20 @@ func (v *DataBase) insertOrders(data model.UserData) {
 			log.Fatal(err)
 		}
 	}
+}
+
+func (v *DataBase) Listen() stan.Subscription {
+	sc, _ := stan.Connect("test-cluster", "client_db", stan.NatsURL("nats://0.0.0.0:4222"))
+	sub, _ := sc.Subscribe("Task", func(msg *stan.Msg) {
+		var task task.Task
+		err := json.Unmarshal(msg.Data, &task)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		if task.UpdateDB {
+			v.ReadFile()
+		}
+	})
+	return sub
 }

@@ -35,8 +35,6 @@ func (v *DataBase) Connect() stan.Subscription {
 	db.Exec("CREATE TABLE IF NOT EXISTS items ( ChrtID INTEGER , TrackNumber varchar(255), Price INTEGER, Rid varchar(255), Name varchar(255), Sale INTEGER, Size varchar(255), TotalPrice INTEGER, NmID INTEGER, Brand varchar(255), Status INTEGER)")
 	db.Exec("CREATE TABLE IF NOT EXISTS orders ( OrderUID varchar(255), TrackNumber varchar(255), Entry varchar(255), Locale varchar(255), InternalSignature varchar(255), CustomerID varchar(255), DeliveryService varchar(255), Shardkey varchar(255), SmID INTEGER, DateCreated varchar(255), OofShard varchar(255))")
 
-	db.Exec("SELECT")
-
 	v.db = db
 	return sub
 }
@@ -131,6 +129,20 @@ func (v *DataBase) Listen() stan.Subscription {
 		if task.UpdateDB {
 			v.ReadFile(task.NameFile)
 		}
+
+		if task.Cash {
+			v.Regenerate()
+		}
 	})
 	return sub
+}
+
+func (v *DataBase) Regenerate() {
+	// var data user.UserData
+	var sub, _ = v.db.Exec("SELECT * FROM delivery")
+	log.Print(sub)
+
+	// v.db.Exec("SELECT * FROM payment")
+	// v.db.Exec("SELECT * FROM items")
+	// v.db.Exec("SELECT * FROM orders")
 }

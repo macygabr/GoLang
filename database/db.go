@@ -3,18 +3,25 @@ package database
 import (
 	"database/sql"
 	"encoding/json"
+	"golang/model"
 	"io/ioutil"
-	"level0/model"
 	"log"
 
 	_ "github.com/lib/pq"
+	"github.com/nats-io/stan.go"
 )
 
 type DataBase struct {
 	db *sql.DB
+	sc stan.Conn
+}
+
+func NewDataBase() *DataBase {
+	return &DataBase{nil, nil}
 }
 
 func (v *DataBase) Connect() {
+
 	conninfo := "user=postgres password=postgres host=127.0.0.1 sslmode=disable"
 	db, err := sql.Open("postgres", conninfo)
 
@@ -26,6 +33,8 @@ func (v *DataBase) Connect() {
 	db.Exec("CREATE TABLE IF NOT EXISTS payment ( Transaction varchar(255) , RequestID varchar(255), Currency varchar(255), Provider varchar(255), Amount INTEGER, PaymentDt INTEGER, Bank varchar(255), DeliveryCost INTEGER, GoodsTotal INTEGER, CustomFee INTEGER)")
 	db.Exec("CREATE TABLE IF NOT EXISTS items ( ChrtID INTEGER , TrackNumber varchar(255), Price INTEGER, Rid varchar(255), Name varchar(255), Sale INTEGER, Size varchar(255), TotalPrice INTEGER, NmID INTEGER, Brand varchar(255), Status INTEGER)")
 	db.Exec("CREATE TABLE IF NOT EXISTS orders ( OrderUID varchar(255), TrackNumber varchar(255), Entry varchar(255), Locale varchar(255), InternalSignature varchar(255), CustomerID varchar(255), DeliveryService varchar(255), Shardkey varchar(255), SmID INTEGER, DateCreated varchar(255), OofShard varchar(255))")
+
+	db.Exec("SELECT")
 
 	v.db = db
 }
@@ -49,6 +58,7 @@ func (v *DataBase) ReadFile() {
 	v.insertPayment(data)
 	v.insertItems(data)
 	v.insertOrders(data)
+
 }
 
 func (v *DataBase) insertDelivery(data model.UserData) {

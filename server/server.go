@@ -1,21 +1,34 @@
 package server
 
 import (
+	"fmt"
+	"golang/database"
 	"html/template"
 	"io"
-	"level0/database"
 	"net/http"
 	"os"
+
+	"github.com/nats-io/stan.go"
 )
 
 type Server struct {
 	db *database.DataBase
+	sc stan.Conn
 }
 
-func (s *Server) Start(db *database.DataBase) {
-	s.db = db
-	db.Connect()
+func NewServer(db *database.DataBase, arg stan.Conn) *Server {
+	return &Server{db, arg}
+}
 
+func Send() {
+	fmt.Println("Send")
+	sc, _ := stan.Connect("test-cluster", "client_server", stan.NatsURL("nats://0.0.0.0:4222"))
+	defer sc.Close()
+	message := []byte("Hello, NATS Streaming!!!")
+	sc.Publish("parseFile", message)
+}
+
+func (s *Server) Start() {
 	s.ListenHomePage()
 	s.ListenUploadPage()
 	http.ListenAndServe(":8080", nil)
@@ -53,7 +66,7 @@ func (s *Server) ListenUploadPage() {
 			}
 			tmpl, _ := template.ParseFiles("server/templates/pages/upload.html")
 			tmpl.Execute(w, nil)
-			s.db.ReadFile()
+			Send()
 		} else {
 			tmpl, _ := template.ParseFiles("server/templates/pages/upload.html")
 			tmpl.Execute(w, nil)

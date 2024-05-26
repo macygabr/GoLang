@@ -34,6 +34,7 @@ func (c *Cash) Regenerate() stan.Subscription {
 		log.Fatal(err)
 	}
 	return sub
+	//Перепиши на нормальное восстановление данных из бд!
 }
 
 func (c *Cash) Send(id string) {

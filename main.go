@@ -30,15 +30,3 @@ func main() {
 	server := server.NewServer(db, nil)
 	server.Start()
 }
-
-func CreateSubscribe() {
-	// //_______________________________________________________________________________________________________________
-	// sc, _ := stan.Connect("test-cluster", "client_id", stan.NatsURL("nats://0.0.0.0:4222"))
-	// sub, _ := sc.Subscribe("parseFile", func(msg *stan.Msg) {
-	// 	fmt.Printf("Received message!: %s\n", string(msg.Data))
-	// 	db.ReadFile()
-	// })
-	// defer sub.Unsubscribe()
-	// time.Sleep(time.Second)
-	// //_______________________________________________________________________________________________________________
-}

@@ -1,7 +1,6 @@
 package user
 
 import (
-	"fmt"
 	"time"
 )
 
@@ -53,6 +52,6 @@ type UserData struct {
 	OofShard          string    `json:"oof_shard"`
 }
 
-func (V *UserData) GetById() {
-	fmt.Println("Hello World")
+func (V *UserData) getById() string {
+	return V.OrderUID
 }

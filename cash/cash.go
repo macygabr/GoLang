@@ -36,13 +36,15 @@ func (c *Cash) Regenerate() stan.Subscription {
 	return sub
 }
 
-func (c *Cash) Send() {
+func (c *Cash) Send(id string) {
 	sc, _ := stan.Connect("test-cluster", "client_cash_send", stan.NatsURL("nats://0.0.0.0:4222"))
 	defer sc.Close()
 
 	task := new(task.Task)
 	task.SetCash(true)
-	task.SetUserData(c.user)
+	if c.user.OrderUID == id {
+		task.SetUserData(c.user)
+	}
 
 	message, err := json.Marshal(task)
 	if err != nil {
@@ -60,7 +62,7 @@ func (c *Cash) Listen() stan.Subscription {
 			log.Fatal(err)
 		}
 		if task.Cash {
-			c.Send()
+			c.Send(task.OrderID)
 		}
 	})
 	return sub

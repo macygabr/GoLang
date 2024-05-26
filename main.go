@@ -7,12 +7,12 @@ import (
 )
 
 func main() {
-	db := database.NewDataBase()
+	db := new(database.DataBase)
 	defer db.Connect().Unsubscribe()
 
-	cash := cash.NewCash()
+	cash := new(cash.Cash)
 	defer cash.Regenerate().Unsubscribe()
 
-	server := server.NewServer(db, nil)
+	server := new(server.Server)
 	defer server.Start().Unsubscribe()
 }

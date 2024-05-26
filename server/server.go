@@ -9,25 +9,23 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"time"
 
 	"github.com/nats-io/stan.go"
 )
 
 type Server struct {
-	db *database.DataBase
-	sc stan.Conn
-}
-
-func NewServer(db *database.DataBase, arg stan.Conn) *Server {
-	return &Server{db, arg}
+	db   *database.DataBase
+	sc   stan.Conn
+	cash task.Task
 }
 
 func (s *Server) Start() stan.Subscription {
 	var sub = s.Listen()
 	s.ListenHomePage()
 	s.ListenUploadPage()
-	s.ListenOrderPage()
 
+	http.HandleFunc("/order", s.submitHandler)
 	http.ListenAndServe(":8080", nil)
 	return sub
 }
@@ -72,13 +70,15 @@ func (s *Server) ListenUploadPage() {
 	})
 }
 
-func (s *Server) ListenOrderPage() {
-	http.HandleFunc("/order", func(w http.ResponseWriter, r *http.Request) {
+func (s *Server) submitHandler(w http.ResponseWriter, r *http.Request) {
+	if r.Method == http.MethodPost {
+		id_value := r.FormValue("name")
 		sc, _ := stan.Connect("test-cluster", "client_server_send", stan.NatsURL("nats://0.0.0.0:4222"))
 		defer sc.Close()
 
 		task := new(task.Task)
 		task.SetCash(true)
+		task.SetOrderID(id_value)
 
 		message, err := json.Marshal(task)
 		if err != nil {
@@ -86,9 +86,14 @@ func (s *Server) ListenOrderPage() {
 		}
 		sc.Publish("cash", message)
 
+		time.Sleep(time.Second / 10)
+
 		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(task)
-	})
+		json.NewEncoder(w).Encode(s.cash.User)
+
+	} else {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+	}
 }
 
 func Send() {
@@ -102,7 +107,7 @@ func Send() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	sc.Publish("Task", message)
+	sc.Publish("database", message)
 }
 
 func (s *Server) Listen() stan.Subscription {
@@ -119,7 +124,8 @@ func (s *Server) Listen() stan.Subscription {
 		}
 
 		if task.Cash {
-			log.Println(task)
+			log.Println(task.User)
+			s.cash = task
 		}
 	})
 	return sub

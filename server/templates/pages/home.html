@@ -16,20 +16,11 @@
                     <svg class="bi me-2" width="40" height="32" role="img" aria-label="Bootstrap"><use xlink:href="#bootstrap"></use></svg>
                 </a>
 
-                <ul class="nav col-12 col-lg-auto my-2 justify-content-center my-md-0 text-small text-white">
+                <ul class="nav col-12 col-lg-auto my-2 align-items-center justify-content-center my-md-0 text-small text-white">
                     <li>
-                        <form class="col-12 col-lg-auto mb-3 mb-lg-0 me-lg-3 text-white" role="search">
-                            <input id="search" type="search" class="form-control form-control-dark" placeholder="Search..." aria-label="Search">
+                        <form action="/order" class="col-12 col-lg-auto mb-3 mb-lg-0 me-lg-3 text-white" role="search" method="POST">
+                            <input type="text"  name="name" class="form-control form-control-dark" placeholder="Search..." aria-label="Search">
                         </form>
-                        <script>
-                            var input = document.getElementById("search");
-                            document.addEventListener('keydown', function(event) {
-                                if (event.key === "Enter") {
-                                    console.log(input.textContent)
-                                    console.log("1234567")
-                                }
-                            });
-                        </script>
                     </li>
 
                     <li>

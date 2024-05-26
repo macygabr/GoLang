@@ -8,6 +8,7 @@ type Task struct {
 	UpdateDB bool
 	Cash     bool
 	User     user.UserData
+	OrderID  string
 }
 
 func (t *Task) SetUpdateDB(status bool) {
@@ -20,4 +21,8 @@ func (t *Task) SetCash(status bool) {
 
 func (t *Task) SetUserData(user user.UserData) {
 	t.User = user
+}
+
+func (t *Task) SetOrderID(id string) {
+	t.OrderID = id
 }

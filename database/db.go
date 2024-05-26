@@ -121,7 +121,7 @@ func (v *DataBase) insertOrders(data user.UserData) {
 
 func (v *DataBase) Listen() stan.Subscription {
 	sc, _ := stan.Connect("test-cluster", "client_db", stan.NatsURL("nats://0.0.0.0:4222"))
-	sub, _ := sc.Subscribe("Task", func(msg *stan.Msg) {
+	sub, _ := sc.Subscribe("database", func(msg *stan.Msg) {
 		var task task.Task
 		err := json.Unmarshal(msg.Data, &task)
 		if err != nil {

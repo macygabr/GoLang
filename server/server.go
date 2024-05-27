@@ -121,7 +121,7 @@ func (s *Server) Listen() stan.Subscription {
 		}
 
 		if task.UpdateDB {
-			log.Println(task)
+			// log.Println(task)
 		}
 
 		if task.Cash {

@@ -79,6 +79,11 @@ func (c *Cash) Listen() stan.Subscription {
 		if task.Cash {
 			c.Send(task.OrderID)
 		}
+		if task.UpdateDB {
+			c.user = task.User
+			log.Println("User in cash")
+			log.Println(task)
+		}
 	})
 	return sub
 }

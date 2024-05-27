@@ -3,9 +3,10 @@ package database
 import (
 	"database/sql"
 	"encoding/json"
+	"io/ioutil"
+
 	"golang/model/task"
 	"golang/model/user"
-	"io/ioutil"
 	"log"
 
 	_ "github.com/lib/pq"
@@ -13,12 +14,9 @@ import (
 )
 
 type DataBase struct {
-	db *sql.DB
-	sc stan.Conn
-}
-
-func NewDataBase() *DataBase {
-	return &DataBase{nil, nil}
+	db   *sql.DB
+	sc   stan.Conn
+	user user.UserData
 }
 
 func (v *DataBase) Connect() stan.Subscription {
@@ -49,16 +47,14 @@ func (v *DataBase) ReadFile(name string) {
 		return
 	}
 
-	var data user.UserData
-	err = json.Unmarshal(jsonData, &data)
+	err = json.Unmarshal(jsonData, &v.user)
 	if err != nil {
 		log.Fatal(err)
 	}
-	v.insertDelivery(data)
-	v.insertPayment(data)
-	v.insertItems(data)
-	v.insertOrders(data)
-
+	v.insertDelivery(v.user)
+	v.insertPayment(v.user)
+	v.insertItems(v.user)
+	v.insertOrders(v.user)
 }
 
 func (v *DataBase) insertDelivery(data user.UserData) {
@@ -138,10 +134,16 @@ func (v *DataBase) Listen() stan.Subscription {
 }
 
 func (v *DataBase) Regenerate() {
-	// var data user.UserData
+	sc, _ := stan.Connect("test-cluster", "db_send", stan.NatsURL("nats://0.0.0.0:4222"))
+	defer sc.Close()
 
-	// stmt, _ := v.db.Prepare("SELECT * FROM orders")
+	task := new(task.Task)
+	task.SetUpdateDB(true)
+	task.SetUserData(v.user)
 
-	// log.Println(stmt)
-
+	message, err := json.Marshal(task)
+	if err != nil {
+		log.Fatal(err)
+	}
+	sc.Publish("cash", message)
 }

@@ -36,6 +36,19 @@
       "nm_id": 2389212,
       "brand": "Vivienne Sabo",
       "status": 202
+    },
+    {
+      "chrt_id": 9934931,
+      "track_number": "test",
+      "price": 111111111,
+      "rid": "ab4210btest",
+      "name": "Mascaraefs",
+      "sale": 30,
+      "size": "0",
+      "total_price": 99999,
+      "nm_id": 2389212,
+      "brand": "Vivienne Sabo",
+      "status": 202
     }
   ],
   "locale": "en",

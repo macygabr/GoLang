@@ -64,7 +64,7 @@ func (c *Cash) Listen() stan.Subscription {
 		}
 		if task.UpdateDB {
 			c.users[task.User.OrderUID] = task.User
-			log.Println(c.users)
+			// log.Println(c.users)
 		}
 	})
 	return sub

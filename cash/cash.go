@@ -42,10 +42,6 @@ func (c *Cash) Send(id string) {
 
 	task := new(task.Task)
 	task.SetCash(true)
-
-	log.Println(id)
-	log.Println(len(c.users))
-	log.Println(c.users[id])
 	task.SetUserData(c.users[id])
 
 	message, err := json.Marshal(task)
@@ -68,7 +64,7 @@ func (c *Cash) Listen() stan.Subscription {
 		}
 		if task.UpdateDB {
 			c.users[task.User.OrderUID] = task.User
-			// log.Println(c.users)
+			log.Println(c.users)
 		}
 	})
 	return sub

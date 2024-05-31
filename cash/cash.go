@@ -10,7 +10,8 @@ import (
 )
 
 type Cash struct {
-	user user.UserData
+	// user  user.UserData
+	users map[string]user.UserData
 }
 
 func NewCash() *Cash {
@@ -18,23 +19,7 @@ func NewCash() *Cash {
 }
 
 func (c *Cash) Regenerate() stan.Subscription {
-	// var sub = c.Listen()
-	// jsonData, err := ioutil.ReadFile("server/download/model.json")
-	// if err != nil {
-	// 	log.Fatal(err)
-	// }
-
-	// if !json.Valid(jsonData) {
-	// 	return sub
-	// }
-
-	// err = json.Unmarshal(jsonData, &c.user)
-	// if err != nil {
-	// 	log.Fatal(err)
-	// }
-	// return sub
-	// //Перепиши на нормальное восстановление данных из бд!
-
+	c.users = make(map[string]user.UserData)
 	var sub = c.Listen()
 	sc, _ := stan.Connect("test-cluster", "client_cash_send", stan.NatsURL("nats://0.0.0.0:4222"))
 	defer sc.Close()
@@ -57,9 +42,16 @@ func (c *Cash) Send(id string) {
 
 	task := new(task.Task)
 	task.SetCash(true)
-	if id != "" && c.user.OrderUID == id {
-		task.SetUserData(c.user)
-	}
+	// fmt.Println("\033[31m" + id + "\033[0m")
+	// for _, v := range c.users {
+	// 	if id != "" && v.OrderUID == id {
+	// 		task.SetUserData(v)
+	// 		fmt.Print("\033[31mFind\033[0m")
+	// 	}
+	// }
+
+	// fmt.Println(id)
+	task.SetUserData(c.users[id])
 
 	message, err := json.Marshal(task)
 	if err != nil {
@@ -80,9 +72,11 @@ func (c *Cash) Listen() stan.Subscription {
 			c.Send(task.OrderID)
 		}
 		if task.UpdateDB {
-			c.user = task.User
-			log.Println("User in cash")
-			log.Println(task)
+			// c.user = task.User
+			// log.Println("User in cash")
+			// c.users[task.OrderID] = task.User
+			c.users[task.OrderID] = task.User
+			// log.Println(c.users)
 		}
 	})
 	return sub

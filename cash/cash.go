@@ -42,15 +42,10 @@ func (c *Cash) Send(id string) {
 
 	task := new(task.Task)
 	task.SetCash(true)
-	// fmt.Println("\033[31m" + id + "\033[0m")
-	// for _, v := range c.users {
-	// 	if id != "" && v.OrderUID == id {
-	// 		task.SetUserData(v)
-	// 		fmt.Print("\033[31mFind\033[0m")
-	// 	}
-	// }
 
-	// fmt.Println(id)
+	log.Println(id)
+	log.Println(len(c.users))
+	log.Println(c.users[id])
 	task.SetUserData(c.users[id])
 
 	message, err := json.Marshal(task)
@@ -72,10 +67,7 @@ func (c *Cash) Listen() stan.Subscription {
 			c.Send(task.OrderID)
 		}
 		if task.UpdateDB {
-			// c.user = task.User
-			// log.Println("User in cash")
-			// c.users[task.OrderID] = task.User
-			c.users[task.OrderID] = task.User
+			c.users[task.User.OrderUID] = task.User
 			// log.Println(c.users)
 		}
 	})

@@ -125,7 +125,6 @@ func (s *Server) Listen() stan.Subscription {
 		}
 
 		if task.Cash {
-			log.Println(task.User)
 			s.cash = task
 		}
 	})

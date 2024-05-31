@@ -1,7 +1,7 @@
 package user
 
 import (
-	"time"
+	"golang/model/item"
 )
 
 type UserData struct {
@@ -29,27 +29,29 @@ type UserData struct {
 		GoodsTotal   int    `json:"goods_total"`
 		CustomFee    int    `json:"custom_fee"`
 	} `json:"payment"`
-	Items []struct {
-		ChrtID      int    `json:"chrt_id"`
-		TrackNumber string `json:"track_number"`
-		Price       int    `json:"price"`
-		Rid         string `json:"rid"`
-		Name        string `json:"name"`
-		Sale        int    `json:"sale"`
-		Size        string `json:"size"`
-		TotalPrice  int    `json:"total_price"`
-		NmID        int    `json:"nm_id"`
-		Brand       string `json:"brand"`
-		Status      int    `json:"status"`
-	} `json:"items"`
-	Locale            string    `json:"locale"`
-	InternalSignature string    `json:"internal_signature"`
-	CustomerID        string    `json:"customer_id"`
-	DeliveryService   string    `json:"delivery_service"`
-	Shardkey          string    `json:"shardkey"`
-	SmID              int       `json:"sm_id"`
-	DateCreated       time.Time `json:"date_created"`
-	OofShard          string    `json:"oof_shard"`
+	// Items []struct {
+	// 	ChrtID      int    `json:"chrt_id"`
+	// 	TrackNumber string `json:"track_number"`
+	// 	Price       int    `json:"price"`
+	// 	Rid         string `json:"rid"`
+	// 	Name        string `json:"name"`
+	// 	Sale        int    `json:"sale"`
+	// 	Size        string `json:"size"`
+	// 	TotalPrice  int    `json:"total_price"`
+	// 	NmID        int    `json:"nm_id"`
+	// 	Brand       string `json:"brand"`
+	// 	Status      int    `json:"status"`
+	// } `json:"items"`
+	Items             []item.Items `json:"items"`
+	Locale            string       `json:"locale"`
+	InternalSignature string       `json:"internal_signature"`
+	CustomerID        string       `json:"customer_id"`
+	DeliveryService   string       `json:"delivery_service"`
+	Shardkey          string       `json:"shardkey"`
+	SmID              int          `json:"sm_id"`
+	// DateCreated       time.Time `json:"date_created"`
+	DateCreated string `json:"date_created"`
+	OofShard    string `json:"oof_shard"`
 }
 
 func (V *UserData) getById() string {
